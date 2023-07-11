@@ -1,0 +1,14 @@
+import pandas as pd
+import openpyxl
+dataframes = []
+values = []
+df = pd.read_excel(r'C:\\03_SuedOstLink\\02_KBW_Sectionen\\A2_KBW_20230607_ShortTable_2.xlsx')
+
+row = 1
+with pd.ExcelWriter('output.xlsx', engine = 'openpyxl', mode = 'a') as writer:
+    for row in range(len(df)):
+        row_df = df.iloc[[row]]
+        name = row_df.iloc[0,0]
+
+        transp_row_df = row_df.transpose()
+        transp_row_df.to_excel(writer, sheet_name=f"KBW_{name}", header=False)
