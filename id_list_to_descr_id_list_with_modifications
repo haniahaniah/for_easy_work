@@ -1,0 +1,43 @@
+###skrypt zmiena kolumnę z ciągiem wartości liczbowych id w ex A (oddzielone przecinkami), na wartosci tekstowe z tabeli B (zestawienie ID - opis ID) i zapisuje nową kolumnę w nowym pliku excel
+
+import pandas as pd
+from collections import Counter
+# Wczytaj dane z excela
+df_a = pd.read_excel("KRBW_table.xlsx") ## tabla z KRBW
+df_b = pd.read_excel("KR_P_ID_table.xlsx") ##tabela z KR_P_ID i opisami
+
+# Funkcja do zamiany numerów ID na opisy
+def change_for_descr(numery_id):
+    opisy = []
+    for num_id in str(numery_id).split(', '):
+        #print(num_id)
+        num_id = int(num_id.strip())  # Jeśli numery ID są liczbami całkowitymi
+        #print(num_id)
+        opis = df_b[df_b['numer_id'] == num_id]['KR_O_BEZ'].values
+
+
+        if len(opis) > 0:
+            opisy.append(opis[0])
+    result = ', '.join(opisy)
+    #print(result, numery_id)
+    # RESULT jest ciagiem znaków. Chcę kod, który będzie liczył mi ile razy ten tekst będzie się powtarzał  i zamieniam mi na krótszy tekst.
+    opisy_mod = result.split()
+    times_text_appeared = Counter(opisy)
+    result_mod = []
+    for kind, number in times_text_appeared.items():
+        if number>1:
+            result_mod.append(f'{kind} x {number}')
+        else:
+            result_mod.append(kind)
+
+
+    return ', '.join(result_mod)
+
+
+# Zastosuj funkcję do kolumny z numerami ID w DataFrame A
+#print(df_a['numery_id'])
+df_a['nowa_kolumna'] = df_a['numery_id'].apply(change_for_descr)
+#print(df_a['numery_id'])
+
+# Zapisz zmodyfikowany DataFrame A do nowego arkusza Excela
+df_a.to_excel("KRBW_result.xlsx", index=False)
